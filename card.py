@@ -5,7 +5,6 @@ class Card:
     def __init__(self, ranks, suits):
         self.ranks = ranks
         self.suits = suits
-
     def __str__(self):
         return "({} {})".format(self.ranks, self.suits)
 
@@ -40,13 +39,37 @@ class Hand:
         self.cards.remove(card)
         other_hand.add(card)
 
-d = Desk()
-my_hand = Hand()
-i=0
-while i<90:
-    my_hand.add(d.deal_card())
-    i+=1
-print(my_hand)
+
+class Game():
+    def __init__(self):
+        d = Desk()
+        self.my_hand = Hand()
+        self.other_hand = Hand()
+        for i in range(6):
+            self.my_hand.add(d.deal_card())
+            self.other_hand.add(d.deal_card())
+        print(self.my_hand)
+
+    def Strike(self):
+        in_card = input("Strike ")
+        print(self.my_hand)
+
+
+
+
+#class Enemy():
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
