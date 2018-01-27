@@ -3,10 +3,10 @@ from random import shuffle
 
 class Card:
     def __init__(self, ranks, suits):
-        self.ranks = ranks
+        self.ranks = {}
         self.suits = suits
 
-    def __str__(self):
+    def __repr__(self):
         return "({} {})".format(self.ranks, self.suits)
 
 
@@ -15,7 +15,7 @@ class Desk:
         RANKS = {"6":6, "7":7, "8":8, "9":9, "10":10, "J":11, "Q":12, "K":13,"A":14}
         SUITS = ["c", "d", "h", "s"]
         self.cards = [Card(r, s) for r in RANKS for s in SUITS]
-        #shuffle(self.cards)
+        shuffle(self.cards)
     def deal_card(self):
         if len(self.cards)>0:
             return self.cards.pop()
@@ -58,8 +58,9 @@ class Game():
         in_card = int(input("Strike "))
         s = len(self.my_hand.value())
         print(s)
-        self.table.add(self.my_hand.value()[in_card-1])
+        self.my_hand.give(self.my_hand.value()[in_card-1],self.table)
         print(self.table)
+        print(self.my_hand)
 
 
 
