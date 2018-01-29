@@ -2,20 +2,33 @@ from random import shuffle
 
 
 class Card:
-    def __init__(self, ranks, suits):
-        self.ranks = {}
+    def __init__(self, ranks, suits,weight,trump):
+        self.ranks = ranks
         self.suits = suits
-
+        self.weight = weight
+        self.trump = trump
     def __repr__(self):
-        return "({} {})".format(self.ranks, self.suits)
+        return "({} {} {} {})".format(self.ranks, self.suits,self.weight,self.trump)
 
 
 class Desk:
     def __init__(self):
-        RANKS = {"6":6, "7":7, "8":8, "9":9, "10":10, "J":11, "Q":12, "K":13,"A":14}
+        self.cards = []
+        RANKS = ['6','7','8','9','10','J','Q','K',"A"]
+        WEIGHT = {"6":6, "7":7, "8":8, "9":9, "10":10, "J":11, "Q":12, "K":13,"A":14}
         SUITS = ["c", "d", "h", "s"]
-        self.cards = [Card(r, s) for r in RANKS for s in SUITS]
+        for i in range(len(SUITS)):
+            s = SUITS[i]
+            for j in range(len(RANKS)):
+                r = RANKS[j]
+                w = WEIGHT[r]
+                t = False
+                self.cards.append(Card(r,s,w,t))
         shuffle(self.cards)
+        m = self.cards[0].suits
+        for i in range(len(self.cards)):
+            if m == self.cards[i].suits:
+                self.cards[i].trump = True
     def deal_card(self):
         if len(self.cards)>0:
             return self.cards.pop()
@@ -49,7 +62,7 @@ class Game():
         self.my_hand = Hand()
         self.other_hand = Hand()
         self.table = Hand()
-        for i in range(6):
+        for i in range(36):
             self.my_hand.add(d.deal_card())
             #self.other_hand.add(d.deal_card())
         print(self.my_hand)
