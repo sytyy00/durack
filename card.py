@@ -62,7 +62,7 @@ class Hand:
 class Game():
     def __init__(self):
         d = Desk()
-        e = Enemy()
+        self.e = Enemy()
         self.my_hand = Hand()
         self.other_hand = Hand()
         self.table = Hand()
@@ -74,11 +74,14 @@ class Game():
 
     def strike(self):
         in_card = int(input("Strike "))
-        s = len(self.my_hand.get_hand())
-        print(s)
         self.my_hand.give(self.my_hand.get_hand()[in_card - 1], self.table)
         print(self.table)
-        print(self.my_hand)
+        rep_card = self.e.enemy_repel(self.table.get_hand()[0], self.other_hand.get_hand())
+        if rep_card != None:
+            self.other_hand.give(rep_card, self.table)
+        print(self.table)
+
+
 
 
 class Enemy():
@@ -95,9 +98,10 @@ class Enemy():
             if card.suits == hand[i].suits:
                 if card.weight < hand[i].weight:
                     car_rep = hand[i]
+                    break
         if car_rep == None:
             for i in range(len(hand)):
-                if hand[i].tump == True:
+                if hand[i].trump == True:
                     if card.trump == True and card.weight < hand[i].weight:
                         car_rep = hand[i]
                     elif card.trump == False:
