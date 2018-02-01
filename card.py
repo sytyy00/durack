@@ -1,8 +1,9 @@
 from random import shuffle
 from random import randint
+
 RANKS = ['6', '7', '8', '9', '10', 'J', 'Q', 'K', "A"]
 WEIGHT = {"6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13, "A": 14}
-SUITS = ["c", "d", "h", "s"]
+SUITS = ['♠', '♦', '♥', '♣']
 
 
 class Card:
@@ -22,7 +23,9 @@ class Desk:
         self.cards = [Card(r, s) for r in RANKS for s in SUITS]
         shuffle(self.cards)
         m = self.cards[0].suits
-
+        print("Trump")
+        print(self.cards[0])
+        print()
         for i in range(len(self.cards)):
             if m == self.cards[i].suits:
                 self.cards[i].trump = True
@@ -58,6 +61,9 @@ class Hand:
         self.cards.remove(card)
         other_hand.add(card)
 
+    def sort(self):
+        self.cards.sort(key=lambda x: (x.trump, x.weight))
+
 
 class Game():
     def __init__(self):
@@ -70,55 +76,87 @@ class Game():
         for i in range(6):
             self.my_hand.add(self.d.deal_card())
             self.other_hand.add(self.d.deal_card())
+        self.my_hand.sort()
+        self.other_hand.sort()
         print("Your hand")
         print("#" * 100)
         print(self.my_hand)
-        #print(self.other_hand)
+        print(self.other_hand)
 
-    def attacker(self):#0
+    def attacker(self):  # 0
         step = None
         my_card = self.p.player_step(self.my_hand.get_hand())
-        self.my_hand.give(my_card, self.table)
-        print()
-        print("TABLE")
-        print(self.table)
-        print("#" * 100)
-        other_card = self.e.enemy_repel(self.table.get_hand()[0], self.other_hand.get_hand())
-        if other_card != None:
-            self.other_hand.give(other_card, self.table)
+        while True:
+            self.my_hand.give(my_card, self.table)
+            print()
+            print("TABLE")
             print(self.table)
             print("#" * 100)
+            other_card = self.e.enemy_repel(self.table.get_hand()[0], self.other_hand.get_hand())
+            if other_card != None:
+                self.other_hand.give(other_card, self.table)
+                print(self.table)
+                print("#" * 100)
+
+                step = 1
+            else:
+
+                step = 0
+                for i in range(len(self.table.get_hand())):
+                    #self.table.give(self.table.get_hand()[i], self.other_hand)
+                    self.other_hand.add(self.table.get_hand()[i])
+                break
+            print("Your hand")
+            print()
+            print(self.my_hand)
+            my_card = self.p.toss(self.table.get_hand(), self.my_hand.get_hand())
+            if my_card == None:
+                break
+        if step == 1:
+            print()
             print("Successful defense")
-            step = 1
         else:
             print("To abandon the defense")
-            step = 0
-            for i in range(len(self.table.get_hand())):
-                self.table.give(self.table.get_hand()[i], self.other_hand)
+
         self.table.get_hand().clear()
 
         return step
 
-    def defender(self):#1
+    def defender(self):  # 1
         step = None
         other_card = self.e.enemy_step(self.other_hand.get_hand())
-        self.other_hand.give(other_card, self.table)
-        print()
-        print("TABLE")
-        print(self.table)
-        print("#" * 100)
-        my_card = self.p.player_repel(self.table.get_hand()[0], self.my_hand.get_hand())
-        if my_card != None:
-            self.my_hand.give(my_card, self.table)
+        while True:
+            self.other_hand.give(other_card, self.table)
+            print()
+            print("TABLE")
             print(self.table)
             print("#" * 100)
+            my_card = self.p.player_repel(self.table.get_hand()[0], self.my_hand.get_hand())
+            if my_card != None:
+                self.my_hand.give(my_card, self.table)
+                print(self.table)
+                print("#" * 100)
+
+                step = 0
+            else:
+
+                step = 1
+                for i in range(len(self.table.get_hand())):
+                    #self.table.give(self.table.get_hand()[i], self.my_hand)
+                    self.my_hand.add(self.table.get_hand()[i])
+                break
+            print("Your hand")
+            print()
+            print(self.my_hand)
+            other_card = self.e.toss(self.table.get_hand(), self.other_hand.get_hand())
+            if other_card == None:
+                break
+        if step == 0:
+            print()
             print("Successful defense")
-            step = 0
         else:
             print("To abandon the defense")
-            step = 1
-            for i in range(len(self.table.get_hand())):
-                self.table.give(self.table.get_hand()[i], self.my_hand)
+
         self.table.get_hand().clear()
 
         return step
@@ -127,15 +165,22 @@ class Game():
         attack = None
         other = self.e.enemy_trump(self.other_hand.get_hand())
         me = self.p.player_trump(self.my_hand.get_hand())
-        if other.weight < me.weight:
-            attack = 1
         if other == None and me != None:
             attack = 0
-        if other != None and me == None:
-            attack =1
-        if attack == None:
-            attack = randint(0,1)
-        return  attack
+        else:
+            if other != None and me == None:
+                attack = 1
+            else:
+                if other == None and me == None:
+                    attack = randint(0, 1)
+                else:
+                    if other.weight < me.weight:
+                        attack = 1
+                    else:
+                        attack = 0
+
+
+        return attack
 
     def refill(self):
         if len(self.my_hand.get_hand()) < 6:
@@ -144,18 +189,16 @@ class Game():
         if len(self.other_hand.get_hand()) < 6:
             for i in range(6 - len(self.other_hand.get_hand())):
                 self.other_hand.add(self.d.deal_card())
+        self.my_hand.sort()
+        self.other_hand.sort()
         print("Your hand")
         print("#" * 100)
         print(self.my_hand)
 
 
-class Enemy(): #1
+class Enemy():  # 1
     def enemy_step(self, hand):
-        card = hand[0]
-        for i in range(len(hand)):
-            if card.weight > hand[i].weight:
-                card = hand[i]
-        return card
+        return hand[0]
 
     def enemy_repel(self, card, hand):
         car_rep = None
@@ -180,13 +223,27 @@ class Enemy(): #1
             if hand[i].trump:
                 card = hand[i]
                 break
-        for i in range(len(hand)):
-            if card.weight > hand[i].weight and card.trump and hand[i].trump:
-                card = hand[i]
-        return  card
+        return card
+
+    def toss(self,table,hand):
+        tab = []
+        exitFlag = False
+        car_toss = None
+        for i in range(len(table)):
+            tab.append(table[i].weight)
+        for i in range(len(tab)):
+              m = tab[i]
+              for j in range(len(hand)):
+                  if m == hand[j].weight:
+                      car_toss = hand[j]
+                      exitFlag = True
+                      break
+              if exitFlag:
+                  break
+        return car_toss
 
 
-class Player(): #0
+class Player():  # 0
     def player_step(self, hand):
         in_card = int(input("Strike "))
         return hand[in_card - 1]
@@ -211,16 +268,39 @@ class Player(): #0
             else:
                 print("Fail")
         return car_rep
+
     def player_trump(self, hand):
         card = None
         for i in range(len(hand)):
             if hand[i].trump:
                 card = hand[i]
                 break
-        for i in range(len(hand)):
-            if card.weight > hand[i].weight and card.trump and hand[i].trump:
-                card = hand[i]
-        return  card
+        return card
+
+    def toss(self,table,hand):
+        tab = []
+        exitFlag = False
+        car_toss = None
+        print("Press 9 to pass")
+        for i in range(len(table)):
+            tab.append(table[i].weight)
+        while True:
+            in_card = int(input("Toss "))
+            if in_card == 9:
+                break
+            else:
+                for i in range(len(tab)):
+                    m = tab[i]
+                    if m == hand[in_card - 1].weight:
+                        car_toss = hand[in_card - 1]
+                        exitFlag = True
+                        break
+                if exitFlag:
+                    break
+        return car_toss
+
+
+
 
 
 
@@ -233,10 +313,3 @@ while True:
     elif step == 0:
         step = game.attacker()
         game.refill()
-
-
-
-
-
-
-
