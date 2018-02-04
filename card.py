@@ -13,7 +13,7 @@ class Card:
         self.weight = WEIGHT[self.ranks]
         self.trump = False
 
-    def __repr__(self):
+    def __repr__(self):#вывод карты
         return "({} {} {} {})".format(self.ranks, self.suits, self.weight, self.trump)
 
 
@@ -30,7 +30,7 @@ class Desk:
             if m == self.cards[i].suits:
                 self.cards[i].trump = True
 
-    def deal_card(self):
+    def deal_card(self):#выдача карты из колоды
         if len(self.cards) > 0:
             return self.cards.pop()
         else:
@@ -41,10 +41,10 @@ class Hand:
     def __init__(self):
         self.cards = []
 
-    def get_hand(self):
+    def get_hand(self):#возвращает список карт в руке
         return self.cards
 
-    def __str__(self):
+    def __str__(self):#вывод руки
         if self.cards:
             rep = ""
             for card in self.cards:
@@ -53,15 +53,15 @@ class Hand:
             rep = "None"
         return rep
 
-    def add(self, card):
+    def add(self, card):#добавление карты в руку
         if card != None:
             self.cards.append(card)
 
-    def give(self, card, other_hand):
+    def give(self, card, other_hand):#передача карты из руки в другую
         self.cards.remove(card)
         other_hand.add(card)
 
-    def sort(self):
+    def sort(self):#сортировка руки
         self.cards.sort(key=lambda x: (x.trump, x.weight))
 
 
@@ -83,7 +83,7 @@ class Game():
         print(self.my_hand)
         print(self.other_hand)
 
-    def attacker(self):  # 0
+    def attacker(self):  # 0, атака игрока ,защита бота
         step = None
         my_card = self.p.player_step(self.my_hand.get_hand())
         while True:
@@ -122,7 +122,7 @@ class Game():
 
         return step
 
-    def defender(self):  # 1
+    def defender(self):  # 1, атака бота, защита игрока
         step = None
         other_card = self.e.enemy_step(self.other_hand.get_hand())
         while True:
@@ -161,7 +161,7 @@ class Game():
 
         return step
 
-    def trump(self):
+    def trump(self):#метод узнаёт ,кто ходит первым по козырям
         attack = None
         other = self.e.enemy_trump(self.other_hand.get_hand())
         me = self.p.player_trump(self.my_hand.get_hand())
@@ -182,7 +182,7 @@ class Game():
 
         return attack
 
-    def refill(self):
+    def refill(self):#пополнение рук
         if len(self.my_hand.get_hand()) < 6:
             for i in range(6 - len(self.my_hand.get_hand())):
                 self.my_hand.add(self.d.deal_card())
@@ -197,10 +197,10 @@ class Game():
 
 
 class Enemy():  # 1
-    def enemy_step(self, hand):
+    def enemy_step(self, hand):#ход бота
         return hand[0]
 
-    def enemy_repel(self, card, hand):
+    def enemy_repel(self, card, hand):#защита бота
         car_rep = None
         for i in range(len(hand)):
             if card.suits == hand[i].suits and card.weight < hand[i].weight:
@@ -217,7 +217,7 @@ class Enemy():  # 1
                         break
         return car_rep
 
-    def enemy_trump(self, hand):
+    def enemy_trump(self, hand):#козыри бота для того,чтобы узнать ,кто ходит первым
         card = None
         for i in range(len(hand)):
             if hand[i].trump:
@@ -225,7 +225,7 @@ class Enemy():  # 1
                 break
         return card
 
-    def toss(self,table,hand):
+    def toss(self,table,hand):#бот подкидывает карты ,если есть такая возможность
         tab = []
         exitFlag = False
         car_toss = None
@@ -244,11 +244,11 @@ class Enemy():  # 1
 
 
 class Player():  # 0
-    def player_step(self, hand):
+    def player_step(self, hand):#ход игрока
         in_card = int(input("Strike "))
         return hand[in_card - 1]
 
-    def player_repel(self, card, hand):
+    def player_repel(self, card, hand):#защита игрока
         print("Press 9 to pass")
         car_rep = None
         while True:
@@ -269,7 +269,7 @@ class Player():  # 0
                 print("Fail")
         return car_rep
 
-    def player_trump(self, hand):
+    def player_trump(self, hand):#козырь игрока
         card = None
         for i in range(len(hand)):
             if hand[i].trump:
@@ -277,7 +277,7 @@ class Player():  # 0
                 break
         return card
 
-    def toss(self,table,hand):
+    def toss(self,table,hand):#подкинуть карту
         tab = []
         exitFlag = False
         car_toss = None
@@ -304,7 +304,7 @@ class Player():  # 0
 
 
 
-game = Game()
+game = Game()#сама игра
 step = game.trump()
 while True:
     if step == 1:
