@@ -1,6 +1,7 @@
 from random import shuffle
 from random import randint
-from log import game_logger
+from log import game_logger, error
+
 
 RANKS = ['6', '7', '8', '9', '10', 'J', 'Q', 'K', "A"]
 WEIGHT = {"6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13, "A": 14}
@@ -75,15 +76,15 @@ class Hand:
 
 class Game():
     def __init__(self):
-        self.d = Desk()
+        self.desk = Desk()
         self.e = Enemy()
         self.p = Player()
         self.my_hand = Hand()
         self.other_hand = Hand()
         self.table = Hand()
         for i in range(6):
-            self.my_hand.add(self.d.deal_card())
-            self.other_hand.add(self.d.deal_card())
+            self.my_hand.add(self.desk.deal_card())
+            self.other_hand.add(self.desk.deal_card())
         self.my_hand.sort()
         self.other_hand.sort()
         print("Your hand")
@@ -197,10 +198,10 @@ class Game():
         m = None
         if len(self.my_hand.get_hand()) < 6:
             for i in range(6 - len(self.my_hand.get_hand())):
-                self.my_hand.add(self.d.deal_card())
+                self.my_hand.add(self.desk.deal_card())
         if len(self.other_hand.get_hand()) < 6:
             for i in range(6 - len(self.other_hand.get_hand())):
-                self.other_hand.add(self.d.deal_card())
+                self.other_hand.add(self.desk.deal_card())
         self.my_hand.sort()
         self.other_hand.sort()
         print("Your hand")
@@ -268,36 +269,46 @@ class Player():  # 0
     def player_step(self, hand):
         """Player step"""
         while True:
-            in_card = int(input("Strike "))
-            if in_card <= len(hand):
-                return hand[in_card - 1]
-                break
-            else:
-                print("Fail")
+            try:
+                in_card = int(input("Strike "))
+                if in_card <= len(hand):
+                    return hand[in_card - 1]
+
+                else:
+                    print("Fail")
+            except ValueError:
+                error.exception("Exception message")
+
 
     def player_repel(self, card, hand):
         """Player protection"""
         print("Press 0 to pass")
         car_rep = None
         while True:
-            in_card = int(input("Repel "))
-            if in_card <= len(hand):
-                if in_card == 0:
-                    break
-                if card.suits == hand[in_card - 1].suits and card.weight < hand[in_card - 1].weight:
-                    car_rep = hand[in_card - 1]
-                    break
-                if hand[in_card - 1].trump:
-                    if not card.trump:
+            try:
+                in_card = int(input("Repel "))
+                if in_card <= len(hand):
+                    if in_card == 0:
+                        break
+                    if card.suits == hand[in_card - 1].suits and card.weight < hand[in_card - 1].weight:
                         car_rep = hand[in_card - 1]
                         break
-                    elif card.trump and card.weight < hand[in_card - 1].weight:
-                        car_rep = hand[in_card - 1]
-                        break
+                    if hand[in_card - 1].trump:
+                        if not card.trump:
+                            car_rep = hand[in_card - 1]
+                            break
+                        elif card.trump and card.weight < hand[in_card - 1].weight:
+                            car_rep = hand[in_card - 1]
+                            break
+                    else:
+                        print("Fail")
                 else:
                     print("Fail")
-            else:
-                print("Fail")
+            except ValueError:
+                error.exception("Exception message")
+
+
+
 
         return car_rep
 
@@ -319,21 +330,24 @@ class Player():  # 0
         for i in range(len(table)):
             tab.append(table[i].weight)
         while True:
-            in_card = int(input("Toss "))
-            if in_card <= len(hand):
-                if in_card == 0:
-                    break
-                else:
-                    for i in range(len(tab)):
-                        m = tab[i]
-                        if m == hand[in_card - 1].weight:
-                            car_toss = hand[in_card - 1]
-                            exitFlag = True
-                            break
-                    if exitFlag:
+            try:
+                in_card = int(input("Toss "))
+                if in_card <= len(hand):
+                    if in_card == 0:
                         break
-            else:
-                print("Fail")
+                    else:
+                        for i in range(len(tab)):
+                            m = tab[i]
+                            if m == hand[in_card - 1].weight:
+                                car_toss = hand[in_card - 1]
+                                exitFlag = True
+                                break
+                        if exitFlag:
+                            break
+                else:
+                    print("Fail")
+            except ValueError:
+                error.exception("Exception message")
 
         return car_toss
 
