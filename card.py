@@ -1,5 +1,6 @@
 from random import shuffle
 from random import randint
+from log import game_logger
 
 RANKS = ['6', '7', '8', '9', '10', 'J', 'Q', 'K', "A"]
 WEIGHT = {"6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13, "A": 14}
@@ -15,7 +16,7 @@ class Card:
 
     def __repr__(self):
         """Output card"""
-        return "({} {} {} {})".format(self.ranks, self.suits, self.weight, self.trump)
+        return "({} {} )".format(self.ranks, self.suits)
 
 
 class Desk:
@@ -189,7 +190,6 @@ class Game():
                         attack = 1
                     else:
                         attack = 0
-
         return attack
 
     def refill(self):
@@ -341,15 +341,18 @@ class Player():  # 0
 game = Game()
 step = game.trump()
 m = None
+game_logger.info("Start game")
 while True:
     if step == 1:
         step = game.defender()
         m = game.refill()
         if m == 1:
             print("Win bot")
+            game_logger.info("win bot")
             break
         if m == 0:
             print("Win player")
+            game_logger.info("win player")
             break
 
     elif step == 0:
@@ -357,7 +360,10 @@ while True:
         m = game.refill()
         if m == 1:
             print("Win bot")
+            game_logger.info("win bot")
             break
         if m == 0:
             print("Win player")
+            game_logger.info("win player")
             break
+game_logger.info("Game end")
