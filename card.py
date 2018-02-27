@@ -345,34 +345,35 @@ class Player():  # 0
                 print("Fail")
         return car_toss
 
+if __name__ == '__main__':
+    """The game itself"""
+    game = Game()
+    step = game.trump()
+    m = None
+    game_logger.info("Start game")
+    while True:
+        if step == 1:
+            step = game.defender()
+            m = game.refill()
+            if m == 1:
+                print("Win bot")
+                game_logger.info("win bot")
+                break
+            if m == 0:
+                print("Win player")
+                game_logger.info("win player")
+                break
 
-"""The game itself"""
-game = Game()
-step = game.trump()
-m = None
-game_logger.info("Start game")
-while True:
-    if step == 1:
-        step = game.defender()
-        m = game.refill()
-        if m == 1:
-            print("Win bot")
-            game_logger.info("win bot")
-            break
-        if m == 0:
-            print("Win player")
-            game_logger.info("win player")
-            break
+        elif step == 0:
+            step = game.attacker()
+            m = game.refill()
+            if m == 1:
+                print("Win bot")
+                game_logger.info("win bot")
+                break
+            if m == 0:
+                print("Win player")
+                game_logger.info("win player")
+                break
+    game_logger.info("Game end")
 
-    elif step == 0:
-        step = game.attacker()
-        m = game.refill()
-        if m == 1:
-            print("Win bot")
-            game_logger.info("win bot")
-            break
-        if m == 0:
-            print("Win player")
-            game_logger.info("win player")
-            break
-game_logger.info("Game end")
